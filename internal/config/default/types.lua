@@ -78,7 +78,7 @@ function wait_close() end
 function wait_refresh() end
 
 ---Show a revision picker and wait for selection (yields)
----@param options? {title?: string, revset?: string} Picker options
+---@param options? {title?: string, revset?: string, position?: "before"|"after"|"into", marker?: string} Picker options
 ---@return string|nil change_id The selected revision's change ID, or nil if cancelled
 function pick_revision(options) end
 
@@ -502,7 +502,7 @@ function pick_revision(options) end
 ---@field input fun(options?: {title?: string, prompt?: string}): string|nil
 ---@field wait_close fun(): boolean
 ---@field wait_refresh fun()
----@field pick_revision fun(options?: {title?: string, revset?: string}): string|nil
+---@field pick_revision fun(options?: {title?: string, revset?: string, position?: "before"|"after"|"into", marker?: string}): string|nil
 
 ---@class jjui.builtin
 ---@field bookmarks jjui.bookmarks

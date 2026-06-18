@@ -432,10 +432,13 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 
 	pickRevisionFn := L.NewFunction(func(L *lua.LState) int {
 		payload := payloadFromTop(L)
-		title := stringVal(payload, "title")
-		revset := stringVal(payload, "revset")
 		return yieldStep(L, step{
-			cmd:     revision_picker.Show(title, revset),
+			cmd: revision_picker.Show(common.ShowRevisionPickerMsg{
+				Title:    stringVal(payload, "title"),
+				Revset:   stringVal(payload, "revset"),
+				Position: common.ParsePickerPosition(stringVal(payload, "position")),
+				Marker:   stringVal(payload, "marker"),
+			}),
 			matcher: matchRevisionPicker,
 		})
 	})

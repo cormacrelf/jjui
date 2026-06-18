@@ -436,7 +436,7 @@ func (m *Model) internalUpdate(msg tea.Msg) tea.Cmd {
 	case target_picker.TargetPickerCancelMsg:
 		return m.popLayer()
 	case common.ShowRevisionPickerMsg:
-		op := revision_picker.NewOperation(msg.Title)
+		op := revision_picker.NewOperation(msg)
 		if msg.Revset != "" {
 			op.PreviousRevset = m.context.CurrentRevset
 			m.context.CurrentRevset = msg.Revset

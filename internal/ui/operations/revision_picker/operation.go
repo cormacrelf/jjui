@@ -27,12 +27,18 @@ var (
 
 type Operation struct {
 	title          string
+	marker         string
+	position       common.PickerPosition
 	selected       *jj.Commit
 	PreviousRevset string
 }
 
-func NewOperation(title string) *Operation {
-	return &Operation{title: title}
+func NewOperation(msg common.ShowRevisionPickerMsg) *Operation {
+	marker := msg.Marker
+	if marker == "" {
+		marker = "select"
+	}
+	return &Operation{title: msg.Title, marker: marker, position: msg.Position}
 }
 
 func (o *Operation) Name() string { return "revision_picker" }
@@ -78,15 +84,29 @@ func (o *Operation) SetSelectedRevision(commit *jj.Commit) tea.Cmd {
 }
 
 func (o *Operation) Render(commit *jj.Commit, pos operations.RenderPosition) string {
-	if pos != operations.RenderPositionBefore || o.selected == nil {
+	if o.selected == nil || commit.GetChangeId() != o.selected.GetChangeId() {
 		return ""
 	}
-	if commit.GetChangeId() != o.selected.GetChangeId() {
+
+	var expectedPos operations.RenderPosition
+	switch o.position {
+	case common.PickerBefore:
+		expectedPos = operations.RenderPositionAfter
+	case common.PickerInto:
+		expectedPos = operations.RenderBeforeChangeId
+	default:
+		expectedPos = operations.RenderPositionBefore
+	}
+	if pos != expectedPos {
 		return ""
 	}
 
 	markerStyle := common.DefaultPalette.Get("rebase target_marker")
-	marker := markerStyle.Render("<< select >>")
+	markerText := "<< " + o.marker + " >>"
+	if o.position == common.PickerInto {
+		return markerStyle.Render(markerText + " ")
+	}
+	marker := markerStyle.Render(markerText)
 	if o.title != "" {
 		dimmedStyle := common.DefaultPalette.Get("rebase dimmed")
 		return lipgloss.JoinHorizontal(lipgloss.Left, marker, " ", dimmedStyle.Render(o.title))
@@ -94,10 +114,8 @@ func (o *Operation) Render(commit *jj.Commit, pos operations.RenderPosition) str
 	return marker
 }
 
-func Show(title, revset string) tea.Cmd {
-	return func() tea.Msg {
-		return common.ShowRevisionPickerMsg{Title: title, Revset: revset}
-	}
+func Show(msg common.ShowRevisionPickerMsg) tea.Cmd {
+	return func() tea.Msg { return msg }
 }
 
 func cmdMsg(msg tea.Msg) tea.Cmd {

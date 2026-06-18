@@ -88,10 +88,31 @@ type (
 	StartAceJumpMsg       struct{}
 	OpenTargetPickerMsg   struct{}
 	ShowRevisionPickerMsg struct {
-		Title  string
-		Revset string
+		Title    string
+		Revset   string
+		Position PickerPosition
+		Marker   string
 	}
 )
+
+type PickerPosition int
+
+const (
+	PickerAfter PickerPosition = iota
+	PickerBefore
+	PickerInto
+)
+
+func ParsePickerPosition(s string) PickerPosition {
+	switch s {
+	case "before":
+		return PickerBefore
+	case "into":
+		return PickerInto
+	default:
+		return PickerAfter
+	}
+}
 
 type State int
 
