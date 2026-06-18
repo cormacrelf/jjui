@@ -1210,6 +1210,14 @@ var luaHandWrittenFunctions = []luaFunctionSpec{
 		FieldName:   "pick_revision",
 		FieldType:   "fun(options?: {title?: string, revset?: string, position?: \"before\"|\"after\"|\"into\", marker?: string}): string|nil",
 	},
+	{
+		Comment:     "Show a multi-select revision picker and wait for selection (yields)",
+		ParamDocs:   []string{"---@param options? {title?: string, revset?: string, position?: \"before\"|\"after\"|\"into\", marker?: string, marker_multi?: string} Picker options"},
+		ReturnDocs:  []string{"---@return string[]|nil change_ids The selected change IDs in selection order, or nil if cancelled"},
+		Declaration: "function pick_revision_multi(options) end",
+		FieldName:   "pick_revision_multi",
+		FieldType:   "fun(options?: {title?: string, revset?: string, position?: \"before\"|\"after\"|\"into\", marker?: string, marker_multi?: string}): string[]|nil",
+	},
 }
 
 func writeLuaHandWrittenFunctions(b *bytes.Buffer) {

@@ -88,10 +88,12 @@ type (
 	StartAceJumpMsg       struct{}
 	OpenTargetPickerMsg   struct{}
 	ShowRevisionPickerMsg struct {
-		Title    string
-		Revset   string
-		Position PickerPosition
-		Marker   string
+		Title       string
+		Revset      string
+		Position    PickerPosition
+		Marker      string
+		MarkerMulti string
+		Multi       bool
 	}
 )
 

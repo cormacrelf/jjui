@@ -447,6 +447,8 @@ func (m *Model) internalUpdate(msg tea.Msg) tea.Cmd {
 		return m.setBaseOperation(op)
 	case revision_picker.SelectedMsg:
 		return m.finishRevisionPicker()
+	case revision_picker.MultiSelectedMsg:
+		return m.finishRevisionPicker()
 	case revision_picker.CancelledMsg:
 		return m.finishRevisionPicker()
 	case common.QuickSearchMsg:

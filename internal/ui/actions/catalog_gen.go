@@ -263,6 +263,8 @@ func ResolveIntent(scope string, action keybindings.Action, args map[string]any)
 			return intents.Apply{}, true
 		case keybindings.Action("revision_picker.cancel"):
 			return intents.Cancel{}, true
+		case keybindings.Action("revision_picker.toggle_select"):
+			return intents.RevisionPickerToggleSelect{}, true
 		}
 	case ScopeRevisions:
 		switch action {

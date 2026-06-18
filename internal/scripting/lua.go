@@ -439,7 +439,21 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 				Position: common.ParsePickerPosition(stringVal(payload, "position")),
 				Marker:   stringVal(payload, "marker"),
 			}),
-			matcher: matchRevisionPicker,
+			matcher: matchRevisionPicker(false),
+		})
+	})
+	pickRevisionMultiFn := L.NewFunction(func(L *lua.LState) int {
+		payload := payloadFromTop(L)
+		return yieldStep(L, step{
+			cmd: revision_picker.Show(common.ShowRevisionPickerMsg{
+				Title:       stringVal(payload, "title"),
+				Revset:      stringVal(payload, "revset"),
+				Position:    common.ParsePickerPosition(stringVal(payload, "position")),
+				Marker:      stringVal(payload, "marker"),
+				MarkerMulti: stringVal(payload, "marker_multi"),
+				Multi:       true,
+			}),
+			matcher: matchRevisionPicker(true),
 		})
 	})
 
@@ -462,6 +476,7 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 	root.RawSetString("wait_refresh", waitRefreshFn)
 	root.RawSetString("change_workspace", changeWsFn)
 	root.RawSetString("pick_revision", pickRevisionFn)
+	root.RawSetString("pick_revision_multi", pickRevisionMultiFn)
 	builtinRoot := L.NewTable()
 	root.RawSetString("builtin", builtinRoot)
 	registerGeneratedActionAPI(L, root, false)
@@ -492,6 +507,7 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 	L.SetGlobal("wait_refresh", waitRefreshFn)
 	L.SetGlobal("change_workspace", changeWsFn)
 	L.SetGlobal("pick_revision", pickRevisionFn)
+	L.SetGlobal("pick_revision_multi", pickRevisionMultiFn)
 }
 
 func registerGeneratedActionAPI(L *lua.LState, root *lua.LTable, builtIn bool) {
@@ -752,14 +768,25 @@ func matchInput(msg tea.Msg) (bool, []lua.LValue) {
 	}
 }
 
-func matchRevisionPicker(msg tea.Msg) (bool, []lua.LValue) {
-	switch msg := msg.(type) {
-	case revision_picker.SelectedMsg:
-		return true, []lua.LValue{lua.LString(msg.ChangeID)}
-	case revision_picker.CancelledMsg:
-		return true, []lua.LValue{lua.LNil}
-	default:
-		return false, nil
+func matchRevisionPicker(multi bool) func(tea.Msg) (bool, []lua.LValue) {
+	return func(msg tea.Msg) (bool, []lua.LValue) {
+		switch msg := msg.(type) {
+		case revision_picker.SelectedMsg:
+			return true, []lua.LValue{lua.LString(msg.ChangeID)}
+		case revision_picker.MultiSelectedMsg:
+			if !multi {
+				return false, nil
+			}
+			tbl := &lua.LTable{}
+			for _, id := range msg.ChangeIDs {
+				tbl.Append(lua.LString(id))
+			}
+			return true, []lua.LValue{tbl}
+		case revision_picker.CancelledMsg:
+			return true, []lua.LValue{lua.LNil}
+		default:
+			return false, nil
+		}
 	}
 }
 

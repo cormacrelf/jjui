@@ -376,6 +376,7 @@ bindings = [
     # revision_picker
     { key = "enter", action = "revision_picker.apply", scope = "revision_picker", desc = "select" },
     { key = "esc", action = "revision_picker.cancel", scope = "revision_picker", desc = "cancel" },
+    { key = "space", action = "revision_picker.toggle_select", scope = "revision_picker", desc = "toggle" },
     { key = "shift+l", action = "revset.edit", scope = "revision_picker", desc = "revset", args = { clear = true } },
     { key = "@", action = "revisions.jump_to_working_copy", scope = "revision_picker", desc = "jump to working copy" },
     { key = ["up", "k"], action = "revisions.move_up", scope = "revision_picker", desc = "up" },

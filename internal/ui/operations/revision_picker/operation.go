@@ -16,6 +16,10 @@ type SelectedMsg struct {
 	ChangeID string
 }
 
+type MultiSelectedMsg struct {
+	ChangeIDs []string
+}
+
 type CancelledMsg struct{}
 
 var (
@@ -28,8 +32,12 @@ var (
 type Operation struct {
 	title          string
 	marker         string
+	markerMulti    string
+	multi          bool
 	position       common.PickerPosition
 	selected       *jj.Commit
+	checked        map[string]bool
+	checkedOrder   []string
 	PreviousRevset string
 }
 
@@ -38,7 +46,18 @@ func NewOperation(msg common.ShowRevisionPickerMsg) *Operation {
 	if marker == "" {
 		marker = "select"
 	}
-	return &Operation{title: msg.Title, marker: marker, position: msg.Position}
+	markerMulti := msg.MarkerMulti
+	if markerMulti == "" {
+		markerMulti = marker
+	}
+	return &Operation{
+		title:       msg.Title,
+		marker:      marker,
+		markerMulti: markerMulti,
+		multi:       msg.Multi,
+		position:    msg.Position,
+		checked:     make(map[string]bool),
+	}
 }
 
 func (o *Operation) Name() string { return "revision_picker" }
@@ -68,10 +87,33 @@ func (o *Operation) Scopes() []common.Scope {
 func (o *Operation) HandleIntent(intent intents.Intent) (tea.Cmd, bool) {
 	switch intent.(type) {
 	case intents.Apply:
+		if o.multi {
+			if len(o.checked) == 0 {
+				return cmdMsg(CancelledMsg{}), true
+			}
+			return cmdMsg(MultiSelectedMsg{ChangeIDs: append([]string(nil), o.checkedOrder...)}), true
+		}
 		if o.selected == nil {
 			return cmdMsg(CancelledMsg{}), true
 		}
 		return cmdMsg(SelectedMsg{ChangeID: o.selected.GetChangeId()}), true
+	case intents.RevisionPickerToggleSelect:
+		if o.multi && o.selected != nil {
+			id := o.selected.GetChangeId()
+			if o.checked[id] {
+				delete(o.checked, id)
+				for i, v := range o.checkedOrder {
+					if v == id {
+						o.checkedOrder = append(o.checkedOrder[:i], o.checkedOrder[i+1:]...)
+						break
+					}
+				}
+			} else {
+				o.checked[id] = true
+				o.checkedOrder = append(o.checkedOrder, id)
+			}
+		}
+		return nil, true
 	case intents.Cancel:
 		return cmdMsg(CancelledMsg{}), true
 	}
@@ -84,7 +126,14 @@ func (o *Operation) SetSelectedRevision(commit *jj.Commit) tea.Cmd {
 }
 
 func (o *Operation) Render(commit *jj.Commit, pos operations.RenderPosition) string {
-	if o.selected == nil || commit.GetChangeId() != o.selected.GetChangeId() {
+	changeId := commit.GetChangeId()
+
+	if o.multi && o.checked[changeId] && pos == operations.RenderBeforeChangeId {
+		markerStyle := common.DefaultPalette.Get("rebase source_marker")
+		return markerStyle.Render("<< " + o.markerMulti + " >> ")
+	}
+
+	if o.selected == nil || changeId != o.selected.GetChangeId() {
 		return ""
 	}
 
@@ -93,7 +142,11 @@ func (o *Operation) Render(commit *jj.Commit, pos operations.RenderPosition) str
 	case common.PickerBefore:
 		expectedPos = operations.RenderPositionAfter
 	case common.PickerInto:
-		expectedPos = operations.RenderBeforeChangeId
+		if o.multi {
+			expectedPos = operations.RenderPositionBefore
+		} else {
+			expectedPos = operations.RenderBeforeChangeId
+		}
 	default:
 		expectedPos = operations.RenderPositionBefore
 	}
@@ -103,7 +156,7 @@ func (o *Operation) Render(commit *jj.Commit, pos operations.RenderPosition) str
 
 	markerStyle := common.DefaultPalette.Get("rebase target_marker")
 	markerText := "<< " + o.marker + " >>"
-	if o.position == common.PickerInto {
+	if o.position == common.PickerInto && !o.multi {
 		return markerStyle.Render(markerText + " ")
 	}
 	marker := markerStyle.Render(markerText)

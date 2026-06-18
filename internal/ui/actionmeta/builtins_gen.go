@@ -97,6 +97,7 @@ var builtInActionScopes = map[string][]string{
 	"redo.prev":                                  {"redo"},
 	"revision_picker.apply":                      {"revision_picker"},
 	"revision_picker.cancel":                     {"revision_picker"},
+	"revision_picker.toggle_select":              {"revision_picker"},
 	"revisions.abandon.ace_jump":                 {"revisions.abandon"},
 	"revisions.abandon.apply":                    {"revisions.abandon"},
 	"revisions.abandon.cancel":                   {"revisions.abandon"},

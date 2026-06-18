@@ -82,6 +82,11 @@ function wait_refresh() end
 ---@return string|nil change_id The selected revision's change ID, or nil if cancelled
 function pick_revision(options) end
 
+---Show a multi-select revision picker and wait for selection (yields)
+---@param options? {title?: string, revset?: string, position?: "before"|"after"|"into", marker?: string, marker_multi?: string} Picker options
+---@return string[]|nil change_ids The selected change IDs in selection order, or nil if cancelled
+function pick_revision_multi(options) end
+
 ---@class jjui.bookmarks
 ---@field apply fun()
 ---@field bookmark_delete fun()
@@ -204,6 +209,7 @@ function pick_revision(options) end
 ---@class jjui.revision_picker
 ---@field apply fun()
 ---@field cancel fun()
+---@field toggle_select fun()
 ---@field close fun()
 
 ---@class jjui.revisions
@@ -503,6 +509,7 @@ function pick_revision(options) end
 ---@field wait_close fun(): boolean
 ---@field wait_refresh fun()
 ---@field pick_revision fun(options?: {title?: string, revset?: string, position?: "before"|"after"|"into", marker?: string}): string|nil
+---@field pick_revision_multi fun(options?: {title?: string, revset?: string, position?: "before"|"after"|"into", marker?: string, marker_multi?: string}): string[]|nil
 
 ---@class jjui.builtin
 ---@field bookmarks jjui.bookmarks

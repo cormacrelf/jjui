@@ -177,6 +177,11 @@ type AbandonSelectDescendants struct{}
 
 func (AbandonSelectDescendants) isIntent() {}
 
+//jjui:bind scope=revision_picker action=toggle_select
+type RevisionPickerToggleSelect struct{}
+
+func (RevisionPickerToggleSelect) isIntent() {}
+
 //jjui:bind scope=revisions action=open_duplicate
 type OpenDuplicate struct {
 	Selected jj.SelectedRevisions
