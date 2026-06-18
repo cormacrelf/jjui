@@ -41,6 +41,7 @@ import (
 	"github.com/idursun/jjui/internal/ui/operations/details"
 	"github.com/idursun/jjui/internal/ui/operations/evolog"
 	"github.com/idursun/jjui/internal/ui/operations/rebase"
+	"github.com/idursun/jjui/internal/ui/operations/revision_picker"
 	"github.com/idursun/jjui/internal/ui/operations/squash"
 )
 
@@ -197,6 +198,16 @@ func (m *Model) resetOperations() {
 	m.clearCheckedItemsForBaseOperation()
 	m.baseOp = operations.NewDefault()
 	m.layers = nil
+}
+
+func (m *Model) finishRevisionPicker() tea.Cmd {
+	if picker, ok := m.baseOp.(*revision_picker.Operation); ok && picker.PreviousRevset != "" {
+		m.context.CurrentRevset = picker.PreviousRevset
+		m.resetOperations()
+		return m.refresh(intents.Refresh{})
+	}
+	m.resetOperations()
+	return m.updateSelection()
 }
 
 func (m *Model) setBaseOperation(op operations.Operation) tea.Cmd {
@@ -424,6 +435,18 @@ func (m *Model) internalUpdate(msg tea.Msg) tea.Cmd {
 		return m.baseOperation().Update(msg)
 	case target_picker.TargetPickerCancelMsg:
 		return m.popLayer()
+	case common.ShowRevisionPickerMsg:
+		op := revision_picker.NewOperation(msg.Title)
+		if msg.Revset != "" {
+			op.PreviousRevset = m.context.CurrentRevset
+			m.context.CurrentRevset = msg.Revset
+			return tea.Batch(m.setBaseOperation(op), m.refresh(intents.Refresh{}))
+		}
+		return m.setBaseOperation(op)
+	case revision_picker.SelectedMsg:
+		return m.finishRevisionPicker()
+	case revision_picker.CancelledMsg:
+		return m.finishRevisionPicker()
 	case common.QuickSearchMsg:
 		m.quickSearch = strings.ToLower(string(msg))
 		m.SetCursor(m.search(0, false))

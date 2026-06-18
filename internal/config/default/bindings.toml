@@ -372,4 +372,13 @@ bindings = [
     { key = "down", action = "choose.move_down", scope = "choose.filter", desc = "down" },
     { key = "enter", action = "choose.apply", scope = "choose.filter", desc = "apply" },
     { key = "esc", action = "choose.cancel", scope = "choose.filter", desc = "cancel" },
+
+    # revision_picker
+    { key = "enter", action = "revision_picker.apply", scope = "revision_picker", desc = "select" },
+    { key = "esc", action = "revision_picker.cancel", scope = "revision_picker", desc = "cancel" },
+    { key = "@", action = "revisions.jump_to_working_copy", scope = "revision_picker", desc = "jump to working copy" },
+    { key = ["up", "k"], action = "revisions.move_up", scope = "revision_picker", desc = "up" },
+    { key = ["down", "j"], action = "revisions.move_down", scope = "revision_picker", desc = "down" },
+    { key = "pgup", action = "revisions.page_up", scope = "revision_picker", desc = "pgup" },
+    { key = "pgdown", action = "revisions.page_down", scope = "revision_picker", desc = "pgdown" },
 ]

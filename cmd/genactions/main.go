@@ -1202,6 +1202,14 @@ var luaHandWrittenFunctions = []luaFunctionSpec{
 		FieldName:   "wait_refresh",
 		FieldType:   "fun()",
 	},
+	{
+		Comment:     "Show a revision picker and wait for selection (yields)",
+		ParamDocs:   []string{"---@param options? {title?: string, revset?: string} Picker options"},
+		ReturnDocs:  []string{"---@return string|nil change_id The selected revision's change ID, or nil if cancelled"},
+		Declaration: "function pick_revision(options) end",
+		FieldName:   "pick_revision",
+		FieldType:   "fun(options?: {title?: string, revset?: string}): string|nil",
+	},
 }
 
 func writeLuaHandWrittenFunctions(b *bytes.Buffer) {

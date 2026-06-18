@@ -77,6 +77,11 @@ function wait_close() end
 ---Yield and wait for revisions to be updated
 function wait_refresh() end
 
+---Show a revision picker and wait for selection (yields)
+---@param options? {title?: string, revset?: string} Picker options
+---@return string|nil change_id The selected revision's change ID, or nil if cancelled
+function pick_revision(options) end
+
 ---@class jjui.bookmarks
 ---@field apply fun()
 ---@field bookmark_delete fun()
@@ -194,6 +199,11 @@ function wait_refresh() end
 ---@field cancel fun()
 ---@field next fun()
 ---@field prev fun()
+---@field close fun()
+
+---@class jjui.revision_picker
+---@field apply fun()
+---@field cancel fun()
 ---@field close fun()
 
 ---@class jjui.revisions
@@ -475,6 +485,7 @@ function wait_refresh() end
 ---@field oplog jjui.oplog
 ---@field password jjui.password
 ---@field redo jjui.redo
+---@field revision_picker jjui.revision_picker
 ---@field status jjui.status
 ---@field ui jjui.ui
 ---@field undo jjui.undo
@@ -491,6 +502,7 @@ function wait_refresh() end
 ---@field input fun(options?: {title?: string, prompt?: string}): string|nil
 ---@field wait_close fun(): boolean
 ---@field wait_refresh fun()
+---@field pick_revision fun(options?: {title?: string, revset?: string}): string|nil
 
 ---@class jjui.builtin
 ---@field bookmarks jjui.bookmarks
@@ -504,6 +516,7 @@ function wait_refresh() end
 ---@field oplog jjui.oplog
 ---@field password jjui.password
 ---@field redo jjui.redo
+---@field revision_picker jjui.revision_picker
 ---@field revisions jjui.revisions
 ---@field revset jjui.revset
 ---@field status jjui.status

@@ -16,6 +16,7 @@ import (
 	"github.com/idursun/jjui/internal/ui/exec_process"
 	"github.com/idursun/jjui/internal/ui/input"
 	"github.com/idursun/jjui/internal/ui/intents"
+	"github.com/idursun/jjui/internal/ui/operations/revision_picker"
 	"github.com/idursun/jjui/internal/ui/revisions"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -429,6 +430,16 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 		return 2
 	})
 
+	pickRevisionFn := L.NewFunction(func(L *lua.LState) int {
+		payload := payloadFromTop(L)
+		title := stringVal(payload, "title")
+		revset := stringVal(payload, "revset")
+		return yieldStep(L, step{
+			cmd:     revision_picker.Show(title, revset),
+			matcher: matchRevisionPicker,
+		})
+	})
+
 	// make sure we have a `jjui` namespace
 	root := L.NewTable()
 	root.RawSetString("revisions", revisionsTable)
@@ -447,6 +458,7 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 	root.RawSetString("wait_close", waitCloseFn)
 	root.RawSetString("wait_refresh", waitRefreshFn)
 	root.RawSetString("change_workspace", changeWsFn)
+	root.RawSetString("pick_revision", pickRevisionFn)
 	builtinRoot := L.NewTable()
 	root.RawSetString("builtin", builtinRoot)
 	registerGeneratedActionAPI(L, root, false)
@@ -476,6 +488,7 @@ func registerAPI(L *lua.LState, ctx *uicontext.MainContext) {
 	L.SetGlobal("wait_close", waitCloseFn)
 	L.SetGlobal("wait_refresh", waitRefreshFn)
 	L.SetGlobal("change_workspace", changeWsFn)
+	L.SetGlobal("pick_revision", pickRevisionFn)
 }
 
 func registerGeneratedActionAPI(L *lua.LState, root *lua.LTable, builtIn bool) {
@@ -730,6 +743,17 @@ func matchInput(msg tea.Msg) (bool, []lua.LValue) {
 	case input.SelectedMsg:
 		return true, []lua.LValue{lua.LString(msg.Value)}
 	case input.CancelledMsg:
+		return true, []lua.LValue{lua.LNil}
+	default:
+		return false, nil
+	}
+}
+
+func matchRevisionPicker(msg tea.Msg) (bool, []lua.LValue) {
+	switch msg := msg.(type) {
+	case revision_picker.SelectedMsg:
+		return true, []lua.LValue{lua.LString(msg.ChangeID)}
+	case revision_picker.CancelledMsg:
 		return true, []lua.LValue{lua.LNil}
 	default:
 		return false, nil

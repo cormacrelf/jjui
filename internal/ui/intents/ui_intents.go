@@ -230,6 +230,7 @@ func (ChooseCancel) isIntent() {}
 //jjui:bind scope=input action=cancel
 //jjui:bind scope=undo action=cancel
 //jjui:bind scope=redo action=cancel
+//jjui:bind scope=revision_picker action=cancel
 type Cancel struct{}
 
 func (Cancel) isIntent() {}
@@ -264,6 +265,7 @@ func (Cancel) isIntent() {}
 //jjui:bind scope=help action=apply
 //jjui:bind scope=undo action=apply
 //jjui:bind scope=redo action=apply
+//jjui:bind scope=revision_picker action=apply
 type Apply struct {
 	Value string
 	Force bool

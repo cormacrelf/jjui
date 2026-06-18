@@ -20,6 +20,7 @@ const (
 	ScopeOplogQuickSearch    = "oplog.quick_search"
 	ScopePassword            = "password"
 	ScopeRedo                = "redo"
+	ScopeRevisionPicker      = "revision_picker"
 	ScopeRevisions           = "revisions"
 	ScopeAbandon             = "revisions.abandon"
 	ScopeAbsorb              = "revisions.absorb"
@@ -255,6 +256,13 @@ func ResolveIntent(scope string, action keybindings.Action, args map[string]any)
 			return intents.OptionSelect{Delta: 1}, true
 		case keybindings.Action("redo.prev"):
 			return intents.OptionSelect{Delta: -1}, true
+		}
+	case ScopeRevisionPicker:
+		switch action {
+		case keybindings.Action("revision_picker.apply"):
+			return intents.Apply{}, true
+		case keybindings.Action("revision_picker.cancel"):
+			return intents.Cancel{}, true
 		}
 	case ScopeRevisions:
 		switch action {

@@ -85,8 +85,12 @@ type (
 	RestoreOperationMsg struct {
 		Operation any
 	}
-	StartAceJumpMsg     struct{}
-	OpenTargetPickerMsg struct{}
+	StartAceJumpMsg       struct{}
+	OpenTargetPickerMsg   struct{}
+	ShowRevisionPickerMsg struct {
+		Title  string
+		Revset string
+	}
 )
 
 type State int
