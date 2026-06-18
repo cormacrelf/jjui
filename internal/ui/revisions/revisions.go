@@ -201,7 +201,7 @@ func (m *Model) resetOperations() {
 }
 
 func (m *Model) finishRevisionPicker() tea.Cmd {
-	if picker, ok := m.baseOp.(*revision_picker.Operation); ok && picker.PreviousRevset != "" {
+	if picker, ok := m.baseOp.(*revision_picker.Operation); ok && picker.PreviousRevset != m.context.CurrentRevset {
 		m.context.CurrentRevset = picker.PreviousRevset
 		m.resetOperations()
 		return m.refresh(intents.Refresh{})
@@ -411,7 +411,9 @@ func (m *Model) internalUpdate(msg tea.Msg) tea.Cmd {
 		if len(m.layers) > 0 {
 			return m.popLayer()
 		}
-		m.resetOperations()
+		if _, ok := m.baseOp.(*revision_picker.Operation); !ok {
+			m.resetOperations()
+		}
 		return m.updateSelection()
 	case common.RestoreOperationMsg:
 		if op, ok := msg.Operation.(operations.Operation); ok {
@@ -437,8 +439,8 @@ func (m *Model) internalUpdate(msg tea.Msg) tea.Cmd {
 		return m.popLayer()
 	case common.ShowRevisionPickerMsg:
 		op := revision_picker.NewOperation(msg)
+		op.PreviousRevset = m.context.CurrentRevset
 		if msg.Revset != "" {
-			op.PreviousRevset = m.context.CurrentRevset
 			m.context.CurrentRevset = msg.Revset
 			return tea.Batch(m.setBaseOperation(op), m.refresh(intents.Refresh{}))
 		}

@@ -17,6 +17,7 @@ import (
 	"github.com/idursun/jjui/internal/ui/flash"
 	"github.com/idursun/jjui/internal/ui/intents"
 	"github.com/idursun/jjui/internal/ui/layout"
+	"github.com/idursun/jjui/internal/ui/operations/revision_picker"
 	"github.com/idursun/jjui/internal/ui/password"
 	"github.com/idursun/jjui/internal/ui/render"
 
@@ -226,6 +227,9 @@ func (m *Model) Update(msg tea.Msg) tea.Cmd {
 		}
 		m.revsetModel.AddToHistory(m.context.CurrentRevset)
 		m.revsetModel.Update(msg)
+		if _, ok := m.revisions.CurrentOperation().(*revision_picker.Operation); ok {
+			return common.RefreshAndKeepSelections
+		}
 		return common.Refresh
 	case common.RunLuaScriptMsg:
 		if msg.CompletionID == "" && m.scriptRunning() {
